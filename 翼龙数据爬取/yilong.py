@@ -168,6 +168,7 @@ def get_Stateless_List(driver, space_name):
             '=19&clusterName=dmz-fgs-ccse&namespaceName=gzsjld')
 
 
+
 # 获取图表信息
 def get_canvas(driver, canvas, tooltip, space_name, name):
     for t in range(len(canvas)):
