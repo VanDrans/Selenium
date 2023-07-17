@@ -1,0 +1,11 @@
+[
+  {
+    "domain": "www.ctgpaas.cn",
+    "httpOnly": true,
+    "name": "SESSION",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "8b2f67cf-0065-4f34-ac3a-496066391959"
+  }
+]

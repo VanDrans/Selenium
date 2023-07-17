@@ -1,0 +1,1 @@
+[{"容器名称": "container1", "容器ID": "docker://e9b7484f914082b40029db5b5c7be62fd469f7faf393b51679ea156885bcfdd0", "镜像版本号": "132.121.204.219:8021/gzznjk/ai/nacos:latest", "重启次数": "0", "CPU": "0.1 vCPU\n7.41%", "内存": "2 GiB\n57.6%", "状态": "running"}]
