@@ -1,1 +1,0 @@
-[{"容器名称": "ai-kettle", "容器ID": "docker://25f7bfc559cb4df04d8682623eaded46bb64334392148dd720d2b183aa60471f", "镜像版本号": "132.121.204.219:8021/gzznjk/ai/web-kettle-chinese:latest", "重启次数": "0", "CPU": "0.5 vCPU\n42.35%", "内存": "10 GiB\n99.99%", "状态": "running"}]

@@ -1,1 +1,0 @@
-[{"容器名称": "container1", "容器ID": "docker://bdb53349c6cb959957d698faa3ee18c131f98ab0f4c2b18ed08ede40e9476a0e", "镜像版本号": "132.121.204.219:8021/gzsjld/rabbitmq:3.8.9-management", "重启次数": "0", "CPU": "0.5 vCPU\n1.62%", "内存": "512 MiB\n22.17%", "状态": "running"}]

@@ -1,11 +1,12 @@
 [
   {
-    "domain": "www.ctgpaas.cn",
+    "domain": "am-cloud.mss.ctc.com",
+    "expiry": 1689672185,
     "httpOnly": true,
-    "name": "SESSION",
+    "name": "route",
     "path": "/",
     "sameSite": "Lax",
     "secure": false,
-    "value": "8b2f67cf-0065-4f34-ac3a-496066391959"
+    "value": "c7df7272-67e0-4f4a-9cdd-5bd10b3b782f"
   }
 ]
