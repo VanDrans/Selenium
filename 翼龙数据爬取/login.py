@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 import json
 import os
 from selenium import webdriver
@@ -7,88 +8,88 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
 
-# µÇÂ½Ò»ºÅÕË»§
+# ç™»é™†ä¸€å·è´¦æˆ·
 def login_1(driver):
-    # µã»÷µÇÂ½Ñ¡Ïî
+    # ç‚¹å‡»ç™»é™†é€‰é¡¹
     login_btn = driver.find_element(by=By.XPATH, value="/html/body/div/div[1]/header/div[2]/div/ul/li[3]/a")
     login_btn.click()
     time.sleep(0.5)
-    # µã»÷ÔÆ
+    # ç‚¹å‡»äº‘
     cloud_button = driver.find_element(by=By.NAME, value="cloudca")
     cloud_button.click()
     time.sleep(0.5)
-    # µã»÷¸ß¼¶°´Å¥ºÍÏÂÒ»²½
+    # ç‚¹å‡»é«˜çº§æŒ‰é’®å’Œä¸‹ä¸€æ­¥
     details_button = driver.find_element(by=By.ID, value="details-button")
     details_button.click()
     time.sleep(1)
     proceed_link = driver.find_element(by=By.ID, value="proceed-link")
     proceed_link.click()
     time.sleep(0.5)
-    # ÊäÈëÃÜÂë
+    # è¾“å…¥å¯†ç 
     username = driver.find_element(by=By.ID, value="j_username")
     username.send_keys("71095722@GD")
     passwrd = driver.find_element(by=By.ID, value="j_password")
     passwrd.send_keys("ads!@Wen22")
     time.sleep(1)
-    # µÇÂ½°´Å¥
+    # ç™»é™†æŒ‰é’®
     login_button = driver.find_element(by=By.CSS_SELECTOR, value="button")
     login_button.click()
 
     time.sleep(100)
 
-    # »ñÈ¡Ò³ÃæµÄcookieĞÅÏ¢
+    # è·å–é¡µé¢çš„cookieä¿¡æ¯
     cookies = driver.get_cookies()
     print(cookies)
-    # ½«cookie±£´æµ½Ò»¸öÁĞ±íÖĞ
+    # å°†cookieä¿å­˜åˆ°ä¸€ä¸ªåˆ—è¡¨ä¸­
     cookie_list = []
     for cookie in cookies:
         cookie_list.append(cookie)
-    # ½«cookieĞÅÏ¢ĞòÁĞ»¯ÎªJSON¸ñÊ½
+    # å°†cookieä¿¡æ¯åºåˆ—åŒ–ä¸ºJSONæ ¼å¼
     json_cookies = json.dumps(cookie_list)
-    # ½«cookieĞÅÏ¢±£´æµ½ÎÄ¼şÖĞ
+    # å°†cookieä¿¡æ¯ä¿å­˜åˆ°æ–‡ä»¶ä¸­
     with open('cookie.json', 'w') as f:
         f.write(json_cookies)
 
 
-# µÇÂ½¶şºÅÕË»§
+# ç™»é™†äºŒå·è´¦æˆ·
 def login_2(driver):
-    # µã»÷µÇÂ½Ñ¡Ïî
+    # ç‚¹å‡»ç™»é™†é€‰é¡¹
     login_btn = driver.find_element(by=By.XPATH, value="/html/body/div/div[1]/header/div[2]/div/ul/li[3]/a")
     login_btn.click()
     time.sleep(0.5)
-    # µã»÷ÔÆ
+    # ç‚¹å‡»äº‘
     cloud_button = driver.find_element(by=By.NAME, value="cloudca")
     cloud_button.click()
     time.sleep(0.5)
-    # µã»÷¸ß¼¶°´Å¥ºÍÏÂÒ»²½
+    # ç‚¹å‡»é«˜çº§æŒ‰é’®å’Œä¸‹ä¸€æ­¥
     details_button = driver.find_element(by=By.ID, value="details-button")
     details_button.click()
     time.sleep(1)
     proceed_link = driver.find_element(by=By.ID, value="proceed-link")
     proceed_link.click()
     time.sleep(0.5)
-    # ÊäÈëÃÜÂë
+    # è¾“å…¥å¯†ç 
     username = driver.find_element(by=By.ID, value="j_username")
     username.send_keys("15688322845")
     passwrd = driver.find_element(by=By.ID, value="j_password")
     passwrd.send_keys("ITYZ@wky2023")
     time.sleep(1)
-    # µÇÂ½°´Å¥
+    # ç™»é™†æŒ‰é’®
     login_button = driver.find_element(by=By.CSS_SELECTOR, value="button")
     login_button.click()
 
-    time.sleep(100)
+    time.sleep(200)
 
-    # »ñÈ¡Ò³ÃæµÄcookieĞÅÏ¢
+    # è·å–é¡µé¢çš„cookieä¿¡æ¯
     cookies = driver.get_cookies()
     print(cookies)
-    # ½«cookie±£´æµ½Ò»¸öÁĞ±íÖĞ
+    # å°†cookieä¿å­˜åˆ°ä¸€ä¸ªåˆ—è¡¨ä¸­
     cookie_list = []
     for cookie in cookies:
         cookie_list.append(cookie)
-    # ½«cookieĞÅÏ¢ĞòÁĞ»¯ÎªJSON¸ñÊ½
+    # å°†cookieä¿¡æ¯åºåˆ—åŒ–ä¸ºJSONæ ¼å¼
     json_cookies = json.dumps(cookie_list)
-    # ½«cookieĞÅÏ¢±£´æµ½ÎÄ¼şÖĞ
+    # å°†cookieä¿¡æ¯ä¿å­˜åˆ°æ–‡ä»¶ä¸­
     with open('cookie.json', 'w') as f:
         f.write(json_cookies)
 
@@ -100,3 +101,4 @@ driver = webdriver.Chrome(options=chrome_options)
 driver.get("http://www.ctgpaas.cn:9000/paas/cloudportal/site/")
 driver.maximize_window()
 driver.implicitly_wait(3)
+login_1(driver)
