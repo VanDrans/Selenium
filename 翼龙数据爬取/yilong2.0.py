@@ -4,23 +4,28 @@ import os
 import requests
 from selenium import webdriver
 import time
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+import datetime
 
-# 获取cookie
-def get_coo(driver):
-    # 使用json读取cookies
-    with open('cookie.json', 'r') as f:
-        json_cookies = f.read()
-    cookie_list = json.loads(json_cookies)
-    # 将cookie添加到请求头中
-    for cookie in cookie_list:
-        # 复制cookie字典
-        cookie_dict = cookie.copy()
-    # 添加cookie到请求头中
+chrome_options = Options()
+chrome_options.add_experimental_option("detach", True)
+# chrome_options.add_argument('--headless')
+driver = webdriver.Chrome(options=chrome_options)
+url = 'http://www.ctgpaas.cn:9000/paas/cloudportal/site/'
+driver.get(url)
+# 使用json读取cookies
+with open('cookie.json', 'r') as f:
+    json_cookies = f.read()
+cookie_list = json.loads(json_cookies)
+for cookie in cookie_list:
+    # 复制cookie字典
+    cookie_dict = cookie.copy()
+    print(type(cookie_dict['value']))
     driver.add_cookie({'name': 'SESSION', 'value': cookie_dict['value']})
-    driver.get("http://www.ctgpaas.cn:9000/paas/cloudportal/site/")
+driver.get(url)
+driver.maximize_window()
+driver.implicitly_wait(10)
 
 
 # 遍历列表中的内容
@@ -32,7 +37,7 @@ def get_List(driver, space_name):
             # 判断是否需要翻页
             next_page = driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div[2]/div/div[2]/div['
                                                       '2]/div[2]/button[2]')
-            print(next)
+            print('页数:', next + 1)
             if next_page.is_enabled() and next != 0:
                 driver.execute_script("arguments[0].click();", next_page)
             time.sleep(0.5)
@@ -41,20 +46,54 @@ def get_List(driver, space_name):
                                              "/html/body/div[2]/div/div/div[2]/div/div[2]/div/div[2]/div[2]/div[1]/div["
                                              "3]/table/tbody//button[@class='el-button el-button--text "
                                              "el-button--small']")
-            print("工作负载：", len(test_name))
+            print("数量：", len(test_name))
             for x in range(len(test_name)):
-                time.sleep(0.5)
+                time.sleep(0.2)
                 name = test_name[x].text
                 if not os.path.exists(f'{space_name}/{name}'):
                     os.makedirs(f'{space_name}/{name}')
-                print('名称:' + name)
+                print('正在爬取podName:' + name)
                 driver.execute_script("arguments[0].click();", test_name[x])
-                time.sleep(0.5)
+                time.sleep(0.2)
                 # 判断是否有数据
                 if not driver.find_element(By.XPATH, '//*[@id="pane-pod"]/div/div[1]/div[3]').text == '暂无数据':
                     podname = driver.find_element(By.XPATH, '//*[@id="pane-pod"]/div/div[1]/div[3]/table/tbody/tr/td['
-                                                            '2]/div')
-                    request_get(space_name, podname.text, name)
+                                                            '2]/div').text
+
+                    # 打开表格
+                    pod_out = driver.find_element(by=By.XPATH,
+                                                  value='//*[@id="pane-pod"]/div/div[1]/div[3]/table/tbody/tr[1]/td['
+                                                        '1]/div/div/i')
+                    driver.execute_script("arguments[0].click();", pod_out)
+                    # pod列表
+
+                    pod_list = driver.find_elements(by=By.XPATH, value='//*[@id="pane-pod"]/div/div[1]/div['
+                                                                       '3]/table/tbody/tr[2]/td/div/div['
+                                                                       '3]/table/tbody//div[@class="cell"]')
+                    plist = []
+                    containername = []
+                    for s in range(0, len(pod_list), 7):
+                        containername.append(pod_list[s].text)
+                        dic = {'容器名称': pod_list[s].text, '容器ID': pod_list[s + 1].text,
+                               '镜像版本号': pod_list[s + 2].text,
+                               '重启次数': pod_list[s + 3].text, 'CPU': pod_list[s + 4].text,
+                               '内存': pod_list[s + 5].text,
+                               '状态': pod_list[s + 6].text}
+                        plist.append(dic)
+                    json_plist = json.dumps(plist, ensure_ascii=False)
+                    with open(f'{space_name}/{name}/pod.json', 'w') as f:
+                        f.write(json_plist)
+                    time.sleep(1)
+                    picture_get(space_name, podname, name, containername)
+                    # 日志
+                    diary_btn = driver.find_element(by=By.ID, value='tab-log')
+                    diary_btn.click()
+                    time.sleep(0.2)
+                    diary = driver.find_element(By.TAG_NAME, "code")
+                    diary_list = json.dumps(diary.text.split('\n'))
+                    with open(f'{space_name}/{name}/diary.json', 'w') as f:
+                        f.write(diary_list)
+
                 driver.back()
                 for n in range(next):
                     if next_page.is_enabled():
@@ -62,7 +101,7 @@ def get_List(driver, space_name):
                         time.sleep(0.5)
             if not next_page.is_enabled():
                 break
-            time.sleep(1)
+            time.sleep(0.5)
             next += 1
 
 
@@ -71,22 +110,21 @@ def get_namespace(driver):
     # 进入命名空间
     namespace_btn = driver.find_element(by=By.XPATH, value="/html/body/div[2]/div/div/div[1]/div/aside/div/ul/li[3]")
     namespace_btn.click()
-    time.sleep(1)
+    time.sleep(0.5)
 
     page_btn = driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div[2]/div[2]/div[2]/span['
                                              '2]/div/div/input')
     driver.execute_script("arguments[0].click();", page_btn)
     page100 = driver.find_element(By.XPATH, '/html/body/div[3]/div[1]/div[1]/ul/li[6]')
     driver.execute_script("arguments[0].click();", page100)
-    time.sleep(1)
+    time.sleep(0.5)
 
     # 选择命名空间
     small_btn = driver.find_elements(By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div[2]/div[2]/div[1]//button')
-    print(len(small_btn))
     for s in range(int(len(small_btn) / 4)):
         space_name = small_btn[s].text
         print("命名空间" + space_name)
-        small_btn[s].click()
+        driver.execute_script("arguments[0].click();", small_btn[s])
         if not os.path.exists(f'{space_name}'):
             os.makedirs(space_name)
 
@@ -157,7 +195,7 @@ def get_inf(driver):
                                                           '2]/div/div/div/div[1]/div[2]/div/div/div[2]/div/div['
                                                           '1]/h3/button')
         open_btn.click()
-    el_link.click()
+    driver.execute_script("arguments[0].click();", el_link)
     time.sleep(2)
 
     windows = driver.window_handles
@@ -167,63 +205,58 @@ def get_inf(driver):
         namespace_btn = driver.find_element(by=By.XPATH,
                                             value="/html/body/div[2]/div/div/div[1]/div/aside/div/ul/li[3]")
         namespace_btn.click()
-        time.sleep(1)
+        time.sleep(0.5)
         get_namespace(driver)
-        time.sleep(10)
+        # time.sleep(3600)
 
 
-def yilong_selenium():
-    chrome_options = Options()
-    chrome_options.add_experimental_option("detach", True)
-
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get("http://www.ctgpaas.cn:9000/paas/cloudportal/site/")
-    driver.maximize_window()
-    driver.implicitly_wait(10)
-    get_coo(driver)
-    get_inf(driver)
-
-
-def request_get(spacename, podname, name):
+# 爬取图片的数据
+def picture_get(spacename, podname, name, containername):
     now = time.time()
-
-    print(now)
+    now = int(now)
+    print(datetime.datetime.fromtimestamp(now))
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        'Cookie': 'JSESSIONID=61353553DEE887577A7F36B95ABF54A8; SESSION=ea40b71c-37b8-4719-afd2-3ecd2bc73a95',
-        'Referer': "http: // www.ctgpaas.cn: 9000 / paas / dcos / 2.7.10 /?ctxPath = dcos"
+        'Cookie': f"SESSION={cookie_dict['value']}",
     }
     list = []
     res1 = requests.get(
-        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/podCpuUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now-3600}&endTime={now}',
+        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/podCpuUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now - 3600}&endTime={now}',
         headers=headers
     ).json()
-    print(res1)
+    # print(res1['data']['values'])
     list.append(res1['data']['values'])
     res2 = requests.get(
-        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/podNetworkUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now-3600}&endTime={now}',
+        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/podNetworkUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now - 3600}&endTime={now}',
         headers=headers
     ).json()
+    # print(res2['data']['values'])
     list.append(res2['data']['values'])
     res3 = requests.get(
-        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/podMemoryUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now-3600}&endTime={now}',
+        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/podMemoryUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now - 3600}&endTime={now}',
         headers=headers
     ).json()
+    # print(res3['data']['values'])
     list.append(res3['data']['values'])
-    res4 = requests.get(
-        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/containerCpuUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now-3600}&endTime={now}',
-        headers=headers
-    ).json()
-    list.append(res4["data"]['values'])
-    res5 = requests.get(
-        f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/containerMemoryUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&startTime={now-3600}&endTime={now}',
-        headers=headers
-    ).json()
-    list.append(res5['data']['values'])
+    for con in containername:
+        res4 = requests.get(
+            f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/containerCpuUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&containerName={con}&startTime={now - 3600}&endTime={now}',
+            headers=headers
+        ).json()
+        # print(res4['data']['values'])
+        list.append(res4['data']['values'])
+        res5 = requests.get(
+            f'http://www.ctgpaas.cn:9000/dcos/workloadMonitor/containerMemoryUsage?clusterName=dmz-fgs-ccse&namespaceName={spacename}&podName={podname}&containerName={con}&startTime={now - 3600}&endTime={now}',
+            headers=headers
+        ).json()
+        # print(res5['data']['values'])
+        list.append(res5['data']['values'])
     list = json.dumps(list, ensure_ascii=False)
     with open(f'{spacename}/{name}/res.json', 'w') as f:
         f.write(list)
 
 
-if __name__ == '__main__':
-    yilong_selenium()
+# 爬取日志信息
+# def diary_get()
+
+get_inf(driver)

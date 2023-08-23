@@ -165,34 +165,6 @@ def get_wict(driver, space_name):
         # with open(f'{space_name}/{name}/diary.json', 'w') as f:
         #     f.write(diary_list)
         # 转到监控页面
-        mon_btn = driver.find_element(By.ID, 'tab-monitor')
-        mon_btn.click()
-        time.sleep(2)
-        # 找到canvas元素和tooltip元素
-        canvas_pad = driver.find_elements(By.TAG_NAME, "canvas")
-        tooltip_pad = driver.find_elements(By.XPATH, '//div[@class="g2-tooltip"]')
-        print(len(canvas_pad), len(tooltip_pad))
-        for t in range(len(canvas_pad)):
-            # 获取canvas元素的坐标和大小
-            canvas_rect = canvas_pad[t].rect
-            print(canvas_rect)
-            driver.execute_script("arguments[0].scrollIntoView();", canvas_pad[t])
-            print(f"{name}Canvas{t}")
-            tooltip_list = []
-            # #遍历曲线上的每个点
-            for n in range(0, canvas_rect["width"], 10):
-                # 计算点在canvas中的坐标
-                x = int(n - canvas_rect["width"] / 2)
-                y = 0
-                # 模拟鼠标悬停事件，获取tooltip内容
-                ActionChains(driver).move_to_element_with_offset(canvas_pad[t], x, y).perform()
-                tooltip_content= tooltip_pad[t].text
-                if tooltip_content != '' and (len(tooltip_list) == 0 or tooltip_content != tooltip_list[-1]):
-                    tooltip_list.append(tooltip_content)
-                    print(tooltip_content)
-            tooltip_json = json.dumps(tooltip_list, ensure_ascii=False)
-            with open(f'{space_name}/{name}/padCanvas{t}.json', 'w') as f:
-                f.write(tooltip_json)
 
         con_btn = driver.find_element(By.XPATH, '//*[@id="pane-monitor"]/div/form/div[1]/div/div/label[2]')
         con_btn.click()
@@ -200,27 +172,7 @@ def get_wict(driver, space_name):
         canvas_container = driver.find_elements(By.TAG_NAME, "canvas")
         tooltip_container = driver.find_elements(By.XPATH, '//div[@class="g2-tooltip"]')
         print(len(canvas_container), len(tooltip_container))
-        for t in range(len(canvas_container)):
-            # 获取canvas元素的坐标和大小
-            canvas_rect = canvas_container[t].rect
-            print(canvas_rect)
-            driver.execute_script("arguments[0].scrollIntoView();", canvas_container[t])
-            print(f"{name}Canvas{t}")
-            tooltip_list = []
-            # #遍历曲线上的每个点
-            for n in range(0, canvas_rect["width"], 10):
-                # 计算点在canvas中的坐标
-                x = int(n - canvas_rect["width"] / 2)
-                y = 0
-                # 模拟鼠标悬停事件，获取tooltip内容
-                ActionChains(driver).move_to_element_with_offset(canvas_container[t], x, y).perform()
-                tooltip_content = tooltip_container[t].text
-                if tooltip_content != '' and (len(tooltip_list) == 0 or tooltip_content != tooltip_list[-1]):
-                    tooltip_list.append(tooltip_content)
-                    print(tooltip_content)
-            tooltip_json = json.dumps(tooltip_list, ensure_ascii=False)
-            with open(f'{space_name}/{name}/containerCanvas{t}.json', 'w') as f:
-                f.write(tooltip_json)
+
         driver.back()
 
 
@@ -306,8 +258,7 @@ def get_inf(driver):
         time.sleep(10)
 
 
-# 图表一信息处理处理
-# def inf_process():
+
 
 
 chrome_options = Options()
